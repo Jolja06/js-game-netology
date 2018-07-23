@@ -55,7 +55,7 @@ class Actor {
         return this.pos.y + this.size.y;
     }
 
-    static get type() {
+    get type() {
         return 'actor';
     }
 
@@ -102,3 +102,108 @@ items.forEach(status);
 movePlayer(5, -5);
 items.forEach(status);
 */
+
+class Level {
+    constructor(grid = [], actors = []) {
+        this.grid = grid;
+        this.actors = actors;
+        this.player = actors.find(element => element.type === 'player');
+        this.height = grid.length;
+        this.width = (this.height === 0) ? 0 : Math.max(...grid.map(item => item.length));
+        this.status = null;
+        this.finishDelay = 1;
+    }
+
+    isFinished() {
+        return this.status !== null && this.finishDelay < 0;
+    }
+
+    actorAt(actor) {
+        if (!(actor instanceof Actor) || !actor) {
+            throw new Error('Вы передали объект не типа Actor');
+        }
+        return this.actors.find(element => element.isIntersect(actor));
+    }
+
+    obstacleAt(target, size) {
+        if (!(target instanceof Vector) && !(size instanceof Vector)) {
+            throw new Error('Вы передали объект не типа Vector');
+        }
+
+        const moveActor = new Actor(target, size);
+
+        if (moveActor.bottom > this.height) {
+            return 'lava';
+        }
+
+        if (moveActor.top < 0 || moveActor.left < 0 || moveActor.right > this.width) {
+            return 'wall';
+        }
+
+        for (let x = Math.floor(moveActor.left); x < Math.ceil(moveActor.right); x++) {
+            for (let y = Math.floor(moveActor.top); y < Math.ceil(moveActor.bottom); y++) {
+                if (this.grid[y][x] !== undefined) {
+                    return this.grid[y][x];
+                }
+            }
+        }
+
+        return undefined;
+    }
+
+    removeActor(actor) {
+        this.actors = this.actors.filter(item => item !== actor);
+    }
+
+    noMoreActors(type) {
+         return !(this.actors.some(item => item.type === type));
+    }
+
+    playerTouched(type, actor) {
+        if (type === 'lava' || type === 'fireball') {
+            this.status = 'lost';
+        } else if (type === 'coin' && actor.type === 'coin') {
+            this.removeActor(actor);
+            if (this.noMoreActors('coin')) {
+                this.status = 'won';
+            }
+        }
+    }
+}
+
+const grid = [
+  [undefined, undefined],
+  ['wall', 'wall']
+];
+
+function MyCoin(title) {
+  this.type = 'coin';
+  this.title = title;
+}
+MyCoin.prototype = Object.create(Actor);
+MyCoin.constructor = MyCoin;
+
+const goldCoin = new MyCoin('Золото');
+const bronzeCoin = new MyCoin('Бронза');
+const player = new Actor();
+const fireball = new Actor();
+
+const level = new Level(grid, [ goldCoin, bronzeCoin, player, fireball ]);
+
+level.playerTouched('coin', goldCoin);
+level.playerTouched('coin', bronzeCoin);
+
+if (level.noMoreActors('coin')) {
+  console.log('Все монеты собраны');
+  console.log(`Статус игры: ${level.status}`);
+}
+
+const obstacle = level.obstacleAt(new Vector(1, 1), player.size);
+if (obstacle) {
+  console.log(`На пути препятствие: ${obstacle}`);
+}
+
+const otherActor = level.actorAt(player);
+if (otherActor === fireball) {
+  console.log('Пользователь столкнулся с шаровой молнией');
+}
