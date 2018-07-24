@@ -170,7 +170,7 @@ class Level {
         }
     }
 }
-
+/*
 const grid = [
   [undefined, undefined],
   ['wall', 'wall']
@@ -207,3 +207,67 @@ const otherActor = level.actorAt(player);
 if (otherActor === fireball) {
   console.log('Пользователь столкнулся с шаровой молнией');
 }
+*/
+
+class LevelParser {
+    constructor(dictionary = {}) {
+        this.dictionary = dictionary;
+    }
+
+    actorFromSymbol(symbol) {
+        return this.dictionary[symbol];
+    }
+
+    obstacleFromSymbol(symbol) {
+        switch (symbol) {
+            case 'x':
+                return 'wall';
+            case '!':
+                return 'lava';
+            default:
+                return undefined;
+        }
+    }
+
+    createGrid(plan = []) {
+        return plan.map(row => row.split('').map(cell => this.obstacleFromSymbol(cell)));
+    }
+
+    createActors(plan = []) {
+        const actors = [];
+        for (let y = 0; y < plan.length; y++) {
+            for (let x = 0; x < plan[0].length; x++) {
+                const NewActor = this.actorFromSymbol(plan[y][x]);
+                if (typeof NewActor === 'function') {
+                    const newActor = new NewActor(new Vector(x,y));
+                    if(newActor instanceof Actor) {
+                        actors.push(newActor);
+                    }
+                }
+            }
+        }
+    return actors;
+    }
+
+    parse(plan = []) {
+        return new Level(this.createGrid(plan), this.createActors(plan));
+    }
+}
+/*
+const plan = [
+  ' @ ',
+  'x!x'
+];
+
+const actorsDict = Object.create(null);
+actorsDict['@'] = Actor;
+
+const parser = new LevelParser(actorsDict);
+const level = parser.parse(plan);
+
+level.grid.forEach((line, y) => {
+  line.forEach((cell, x) => console.log(`(${x}:${y}) ${cell}`));
+});
+
+level.actors.forEach(actor => console.log(`(${actor.pos.x}:${actor.pos.y}) ${actor.type}`));
+*/
