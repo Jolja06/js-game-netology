@@ -272,29 +272,51 @@ level.grid.forEach((line, y) => {
 level.actors.forEach(actor => console.log(`(${actor.pos.x}:${actor.pos.y}) ${actor.type}`));
 */
 
-class Player extends Actor{
+class Fireball extends Actor {
+    constructor(pos = new Vector(0, 0), speed = new Vector(0, 0)) {
+        super(pos, new Vector(1, 1), speed);
+    }
+
+    get type() {
+        return 'fireball';
+    }
+
+    getNextPosition(time = 1) {
+        return this.pos.plus(this.speed.times(time));
+    }
+
+    handleObstacle() {
+        this.speed = this.speed.times(-1);
+    }
+
+    act(time, level) {
+        const nextPosition = this.getNextPosition(time);
+        if (level.obstacleAt(nextPosition, this.size)) {
+            this.handleObstacle();
+        } else {
+            this.pos = nextPosition;
+        }
+    }
+}
+
+const time = 5;
+const speed = new Vector(1, 0);
+const position = new Vector(5, 5);
+
+const ball = new Fireball(position, speed);
+
+const nextPosition = ball.getNextPosition(time);
+console.log(`Новая позиция: ${nextPosition.x}: ${nextPosition.y}`);
+
+ball.handleObstacle();
+console.log(`Текущая скорость: ${ball.speed.x}: ${ball.speed.y}`);
+
+class Player extends Actor {
     constructor(pos = new Vector(0, 0)) {
         super(pos.plus(new Vector(0, -0.5)), new Vector(0.8, 1.5));
     }
+
     get type() {
         return 'player';
     }
 }
-
-
-const schema = [
-  '         ',
-  '         ',
-  '         ',
-  '         ',
-  '     !xxx',
-  ' @       ',
-  'xxx!     ',
-  '         '
-];
-const actorDict = {
-  '@': Player
-}
-const parser = new LevelParser(actorDict);
-const level = parser.parse(schema);
-runLevel(level, DOMDisplay);
