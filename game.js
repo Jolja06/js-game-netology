@@ -324,6 +324,18 @@ class VerticalFireball extends Fireball {
     }
 }
 
+class FireRain extends Fireball {
+    constructor(pos = new Vector(0, 0)) {
+        super(pos, new Vector(0, 3));
+        this.start = this.pos;
+    }
+
+    handleObstacle() {
+        this.speed = this.speed;
+        this.pos = this.start;
+    }
+}
+
 class Player extends Actor {
     constructor(pos = new Vector(0, 0)) {
         super(pos.plus(new Vector(0, -0.5)), new Vector(0.8, 1.5));
