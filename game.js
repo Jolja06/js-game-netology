@@ -298,7 +298,7 @@ class Fireball extends Actor {
         }
     }
 }
-
+ /*
 const time = 5;
 const speed = new Vector(1, 0);
 const position = new Vector(5, 5);
@@ -310,6 +310,13 @@ console.log(`Новая позиция: ${nextPosition.x}: ${nextPosition.y}`);
 
 ball.handleObstacle();
 console.log(`Текущая скорость: ${ball.speed.x}: ${ball.speed.y}`);
+*/
+
+class HorizontalFireball extends Fireball {
+    constructor(pos = new Vector(0, 0)) {
+        super(pos, new Vector(2, 0));
+    }
+}
 
 class Player extends Actor {
     constructor(pos = new Vector(0, 0)) {
