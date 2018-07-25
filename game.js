@@ -271,3 +271,30 @@ level.grid.forEach((line, y) => {
 
 level.actors.forEach(actor => console.log(`(${actor.pos.x}:${actor.pos.y}) ${actor.type}`));
 */
+
+class Player extends Actor{
+    constructor(pos = new Vector(0, 0)) {
+        super(pos.plus(new Vector(0, -0.5)), new Vector(0.8, 1.5));
+    }
+    get type() {
+        return 'player';
+    }
+}
+
+
+const schema = [
+  '         ',
+  '         ',
+  '         ',
+  '         ',
+  '     !xxx',
+  ' @       ',
+  'xxx!     ',
+  '         '
+];
+const actorDict = {
+  '@': Player
+}
+const parser = new LevelParser(actorDict);
+const level = parser.parse(schema);
+runLevel(level, DOMDisplay);
