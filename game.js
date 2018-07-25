@@ -336,6 +336,37 @@ class FireRain extends Fireball {
     }
 }
 
+class Coin extends Actor {
+    constructor(pos = new Vector(0, 0)) {
+        super(pos.plus(new Vector(0.2, 0.1)), new Vector(0.6, 0.6));
+        this.springSpeed = 8;
+        this.springDist = 0.07;
+        this.spring = Math.random() * 2 * Math.PI;
+        this.basePos = pos.plus(new Vector(0.2, 0.1));
+    }
+
+    get type() {
+        return 'coin';
+    }
+
+    updateSpring(time = 1) {
+        this.spring = this.spring + this.springSpeed * time;
+    }
+
+    getSpringVector() {
+        return new Vector(0, Math.sin(this.spring) * this.springDist);
+    }
+
+    getNextPosition(time = 1) {
+        this.updateSpring(time);
+        return this.basePos.plus(this.getSpringVector());
+    }
+
+    act(time) {
+        this.pos = this.getNextPosition(time);
+    }
+}
+
 class Player extends Actor {
     constructor(pos = new Vector(0, 0)) {
         super(pos.plus(new Vector(0, -0.5)), new Vector(0.8, 1.5));
@@ -345,3 +376,35 @@ class Player extends Actor {
         return 'player';
     }
 }
+
+// Play this game
+const schemas = [
+  [
+    '         ',
+    '         ',
+    '    =    ',
+    '       o ',
+    '     !xxx',
+    ' @       ',
+    'xxx!     ',
+    '         '
+  ],
+  [
+    '      v  ',
+    '         ',
+    '  v      ',
+    '        o',
+    '        x',
+    '@   x    ',
+    'x        ',
+    '         '
+  ]
+];
+const actorDict = {
+  '@': Player,
+  'v': FireRain,
+  'o': Coin
+}
+const parser = new LevelParser(actorDict);
+runGame(schemas, parser, DOMDisplay)
+  .then(() => console.log('Вы выиграли приз!'));
