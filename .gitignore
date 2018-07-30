@@ -2,7 +2,6 @@
 logs
 *.log
 npm-debug.log*
-package-lock.json
 
 # Runtime data
 pids
@@ -37,4 +36,4 @@ jspm_packages
 # Optional REPL history
 .node_repl_history
 
-.idea
+.idea/
