@@ -110,7 +110,7 @@ class Level {
         this.actors = actors;
         this.player = actors.find(element => element.type === 'player');
         this.height = grid.length;
-        this.width = grid.length ? Math.max.apply(Math, grid.map(row => row.length)) : 0;
+        this.width = grid.length ? Math.max(...grid.map(row => row.length)) : 0;
         this.status = null;
         this.finishDelay = 1;
     }
@@ -143,8 +143,9 @@ class Level {
 
         for (let x = Math.floor(moveActor.left); x < Math.ceil(moveActor.right); x++) {
             for (let y = Math.floor(moveActor.top); y < Math.ceil(moveActor.bottom); y++) {
-                if (this.grid[y][x] !== undefined) {
-                    return this.grid[y][x];
+                const obstacle = this.grid[y][x];
+                if (obstacle !== undefined) {
+                    return obstacle;
                 }
             }
         }
@@ -237,7 +238,7 @@ class LevelParser {
     }
 
     createGrid(plan = []) {
-        return plan.map(row => row.split('').map(this.obstacleFromSymbol));
+        return plan.map(row => [...row].map(this.obstacleFromSymbol));
     }
 
     createActors(plan = []) {
@@ -383,35 +384,17 @@ class Player extends Actor {
     }
 }
 
-// Play this game
-const schemas = [
-  [
-    '         ',
-    '         ',
-    '    =    ',
-    '       o ',
-    '     !xxx',
-    ' @       ',
-    'xxx!     ',
-    '         '
-  ],
-  [
-    '      v  ',
-    '         ',
-    '  v      ',
-    '=       o',
-    '        x',
-    '@   x    ',
-    'x        ',
-    '         '
-  ]
-];
 const actorDict = {
-  '@': Player,
-  'v': FireRain,
-  'o': Coin,
-  '=': HorizontalFireball,
-}
+    '@': Player,
+    'o': Coin,
+    '=': HorizontalFireball,
+    '|': VerticalFireball,
+    'v': FireRain,
+};
+
 const parser = new LevelParser(actorDict);
-runGame(schemas, parser, DOMDisplay)
+
+loadLevels()
+    .then(schemes => JSON.parse(schemes))
+    .then(schemes => runGame(schemes, parser, DOMDisplay))
     .then(() => alert('Вы выиграли приз!'));
