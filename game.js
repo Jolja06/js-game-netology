@@ -174,7 +174,7 @@ class Level {
                 this.status = 'lost';
                 break;
             default:
-                return;
+                return false;
         }
     }
 }
@@ -233,7 +233,7 @@ class LevelParser {
             case '!':
                 return 'lava';
             default:
-                return;
+                return undefined;
         }
     }
 
